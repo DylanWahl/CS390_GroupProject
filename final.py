@@ -22,7 +22,7 @@ def main():
     df = read_file('spam.csv')
     # I added a new column, dont have to
     #df['clean'] = df['msg'].apply(gen_ST)# OR
-    df['clean'] = df['msg'].apply(gen_ST)
+    df['clean'] = df['msg'].apply(clean_data)
     #give us the length/word count
     df['length'] = df['clean'].apply(len)
 # Ashley's Code ****
@@ -32,7 +32,9 @@ def main():
 def read_file(strg):
     df = pd.read_csv(strg, encoding='Windows-1252')
     df = df.rename(columns={'v1': 'label', 'v2': 'msg'})
-    return df.loc[:, ~df.columns.str.contains('^Unnamed')]
+    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+    return convert(df)
+
 
 
 # our stemming and lemninzation
@@ -50,18 +52,10 @@ def clean_data(doc):  # Rename for clarity
     return words
 
 
-<<<<<<< HEAD
-=======
+def word_count(msg):
+    word_count = { word: words.count(word) for word in words }
+    return word_count
 
-df = read_file('spam.csv')
-# I added a new column, dont have to
-#df['clean'] = df['msg'].apply(gen_ST)# OR
-df['clean'] = df['msg'].apply(clean_data)
-#give us the length/word count
-df['length'] = df['clean'].apply(len)
-
-
->>>>>>> 1bd14c4332716addf6e85ae67edc52e777b9d020
 def convert(df):
     str_to_num = {'ham': 0, 'spam': 1}
     new_df = df.replace(str_to_num)
