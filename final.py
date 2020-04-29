@@ -54,7 +54,7 @@ def clean_data(doc):  # Rename for clarity
 df = read_file('spam.csv')
 # I added a new column, dont have to
 #df['clean'] = df['msg'].apply(gen_ST)# OR
-df['clean'] = df['msg'].apply(gen_ST)
+df['clean'] = df['msg'].apply(clean_data)
 #give us the length/word count
 df['length'] = df['clean'].apply(len)
 
