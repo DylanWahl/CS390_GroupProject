@@ -20,11 +20,7 @@ def main():
     spam = readfile(file)
     hamWords, spamWords, sharedWords = createWordLists(spam)
     df = read_file('spam.csv')
-    # I added a new column, dont have to
-    #df['clean'] = df['msg'].apply(gen_ST)# OR
-    df['clean'] = df['msg'].apply(clean_data)
-    #give us the length/word count
-    df['length'] = df['clean'].apply(len)
+    print(convert(df))
 # Ashley's Code ****
 # Ash's work
         # Note: I do not think we need to have shared words for what he is asking
@@ -33,9 +29,9 @@ def read_file(strg):
     df = pd.read_csv(strg, encoding='Windows-1252')
     df = df.rename(columns={'v1': 'label', 'v2': 'msg'})
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+    df['msg'] = df['msg'].apply(clean_data)
+    df['length'] = df['msg'].apply(len)
     return convert(df)
-
-
 
 # our stemming and lemninzation
 stemmer = stem.SnowballStemmer('english')
@@ -59,10 +55,11 @@ def word_count(msg):
 def convert(df):
     str_to_num = {'ham': 0, 'spam': 1}
     new_df = df.replace(str_to_num)
-    return new_df.to_dict('index')
+    return df.to_dict('index') #convert to dictionary
 
 
-convert(df)
+
+
 
 # End of Ashley's Code ****
 
