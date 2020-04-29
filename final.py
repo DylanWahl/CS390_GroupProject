@@ -50,6 +50,18 @@ def clean_data(doc):  # Rename for clarity
     return words
 
 
+<<<<<<< HEAD
+=======
+
+df = read_file('spam.csv')
+# I added a new column, dont have to
+#df['clean'] = df['msg'].apply(gen_ST)# OR
+df['clean'] = df['msg'].apply(clean_data)
+#give us the length/word count
+df['length'] = df['clean'].apply(len)
+
+
+>>>>>>> 1bd14c4332716addf6e85ae67edc52e777b9d020
 def convert(df):
     str_to_num = {'ham': 0, 'spam': 1}
     new_df = df.replace(str_to_num)
