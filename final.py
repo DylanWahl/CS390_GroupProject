@@ -8,6 +8,10 @@ Created on Mon Apr 27 21:21:20 2020
 import pandas as pd
 import numpy as np
 import torch
+#Ashley Added some libraries
+import nltk
+from nltk import stem
+from nltk.corpus import stopwords
 
 
 
@@ -21,7 +25,49 @@ def main():
     print()
     print(sorted(sharedWords))
     print(len(hamWords), len(spamWords), len(sharedWords))
+# Ashley's Code ****
+# Ash's work
+        # Note: I do not think we need to have shared words for what he is asking
 
+def read_file(strg):
+    df = pd.read_csv(strg, encoding='Windows-1252')
+    df = df.rename(columns={'v1': 'label', 'v2': 'msg'})
+    return df.loc[:, ~df.columns.str.contains('^Unnamed')]
+
+
+# our stemming and lemninzation
+stemmer = stem.SnowballStemmer('english')
+stopwords = set(stopwords.words('english'))
+
+
+def clean_data(doc):  # Rename for clarity
+    lowercase = doc.lower()
+    token = nltk.word_tokenize(lowercase)
+    words = [word for word in token if not word in stopwords]
+    # if there is punc. don't include
+    new_words = [word for word in words if word.isalnum()]
+    words = [stemmer.stem(words) for words in new_words]
+    return words
+
+
+
+df = read_file('spam.csv')
+# I added a new column, dont have to
+#df['clean'] = df['msg'].apply(gen_ST)# OR
+df['clean'] = df['msg'].apply(gen_ST)
+#give us the length/word count
+df['length'] = df['clean'].apply(len)
+
+
+def convert(df):
+    str_to_num = {'ham': 0, 'spam': 1}
+    new_df = df.replace(str_to_num)
+    return new_df.to_dict('index')
+
+
+convert(df)
+
+# End of Ashley's Code ****
 
 def createWordLists(array):
     hamWords = {}
