@@ -3,10 +3,12 @@
 Created on Mon Apr 27 21:21:20 2020
 
 @author: WAHLD
+@author: Ashley
 """
 import pandas as pd
 import numpy as np
 import torch
+
 
 
 def main():
@@ -19,8 +21,8 @@ def main():
     print()
     print(sorted(sharedWords))
     print(len(hamWords), len(spamWords), len(sharedWords))
-    
-    
+
+
 def createWordLists(array):
     hamWords = {}
     spamWords = {}
@@ -31,12 +33,12 @@ def createWordLists(array):
             workingDict = hamWords
         elif x[0] == 'spam':
             workingDict = spamWords
-            
+
         for w in x[1]:
             w = w.lower()
             value = workingDict.setdefault(w, 0) + 1
             workingDict.update({w : value})
-                
+
 
         delete = []
         for x in hamWords.keys():
@@ -47,11 +49,11 @@ def createWordLists(array):
                 newValue = sharedWords.get(x) + hamWords.get(x)
                 sharedWords.update({x: newValue})
                 delete.append(x)
-        
+
         for key in delete:
             hamWords.pop(key)
-        
-                
+
+
     return hamWords, spamWords, sharedWords
 
 
