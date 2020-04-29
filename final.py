@@ -19,12 +19,12 @@ def main():
     file = "spam.csv"
     spam = readfile(file)
     hamWords, spamWords, sharedWords = createWordLists(spam)
-    print(sorted(hamWords))
-    print()
-    print()
-    print()
-    print(sorted(sharedWords))
-    print(len(hamWords), len(spamWords), len(sharedWords))
+    df = read_file('spam.csv')
+    # I added a new column, dont have to
+    #df['clean'] = df['msg'].apply(gen_ST)# OR
+    df['clean'] = df['msg'].apply(gen_ST)
+    #give us the length/word count
+    df['length'] = df['clean'].apply(len)
 # Ashley's Code ****
 # Ash's work
         # Note: I do not think we need to have shared words for what he is asking
@@ -48,15 +48,6 @@ def clean_data(doc):  # Rename for clarity
     new_words = [word for word in words if word.isalnum()]
     words = [stemmer.stem(words) for words in new_words]
     return words
-
-
-
-df = read_file('spam.csv')
-# I added a new column, dont have to
-#df['clean'] = df['msg'].apply(gen_ST)# OR
-df['clean'] = df['msg'].apply(gen_ST)
-#give us the length/word count
-df['length'] = df['clean'].apply(len)
 
 
 def convert(df):
