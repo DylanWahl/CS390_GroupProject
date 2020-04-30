@@ -11,8 +11,8 @@ import string
 import torch
 import nltk
 import re
-
 #nltk.download('stopwords')# Uncomment if don't have this package
+
 
 # Main function where all other functions are called.
 def main():
@@ -30,9 +30,6 @@ def main():
     # sharedWords
     print("Top 50 Shared Words")
     get_top(sharedWords)
-
-
-
 
 
 def readfile(file):
@@ -122,7 +119,11 @@ def createWordLists(array):
 
     return hamWords, spamWords, sharedWords
 
+<<<<<<< HEAD
 main()
+=======
+
+>>>>>>> 405c0e47dbcc8f9cad47f6f2dd2536cb2feab7fa
 
 # **************** NOT FINAL: Still working on **********
 def torch_conversion(strg):
