@@ -7,6 +7,7 @@ from string import digits
 from nltk import stem
 import pandas as pd
 import numpy as np
+import random
 import string
 import torch
 import nltk
@@ -16,10 +17,14 @@ import re
 
 # Main function where all other functions are called.
 def main():
+    TRAIN_PERCENTAGE_ONE = .7
+    TRAIN_PERCENTAGE_TWO = .8
     file = "spam.csv"
     df = readfile(file)
     numpy_df = convert_file(df)
-    hamWords, spamWords, sharedWords = createWordLists(numpy_df)
+    trainSet, testSet = split_set(numpy_df, TRAIN_PERCENTAGE_ONE)
+    
+    hamWords, spamWords, sharedWords = createWordLists(trainSet)
     # Return the top 50 words in # just for demonstrating purposes
     # hamWords
     print("Top 50 Ham")
@@ -30,6 +35,24 @@ def main():
     # sharedWords
     print("Top 50 Shared Words")
     get_top(sharedWords)
+
+
+def split_set(data, trainProp):
+    random.shuffle(data)
+    
+    trainData = []
+    testData = []
+    trainNumber = data.size * trainProp
+    print(data.size)
+    print(trainNumber)
+    
+    for x in range(data.size):
+        if(x < trainNumber):
+            trainData.append(data[x])
+        else:
+            testData.append(data[x])
+    
+    return trainData, testData
 
 
 def readfile(file):
