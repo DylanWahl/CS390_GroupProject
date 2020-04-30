@@ -23,34 +23,60 @@ def main():
     df = readfile(file)
     numpy_df = convert_file(df)
     trainSet, testSet = split_set(numpy_df, TRAIN_PERCENTAGE_ONE)
-    
     hamWords, spamWords, sharedWords = createWordLists(trainSet)
+    print(hamWords)
+    correctCount = 0
+    incorrectCount = 0
+    for x in testSet:
+        hamSimilarity, spamSimilarity = predict_class(hamWords, spamWords, x[1])
+        if(spamSimilarity > hamSimilarity):
+            guess = 'spam'
+        else: 
+            guess = 'ham'
+        
+        if(guess == x[0]):
+            correctCount += 1
+        else:
+            incorrectCount += 1
+            
+    print('incorrect: ', incorrectCount, ', correct: ', correctCount)
+    
     # Return the top 50 words in # just for demonstrating purposes
     # hamWords
-    print("Top 50 Ham")
-    get_top(hamWords)
+#    print("Top 50 Ham")
+#    get_top(hamWords)
     # spamWords
-    print("Top 50 Spam")
-    get_top(spamWords)
+#    print("Top 50 Spam")
+#    get_top(spamWords)
     # sharedWords
-    print("Top 50 Shared Words")
-    get_top(sharedWords)
+#    print("Top 50 Shared Words")
+#    get_top(sharedWords)
+
+
+def predict_class(hamWords, spamWords, sentence):
+    
+    sentence = Counter(sentence)
+    
+    
+    
+    
+    
+    hamSimilarity = 0
+    spamSimilarity = 0
+    for x in sentence:
+        if(x in hamWords):
+            hamSimilarity += 1
+        if(x in spamWords):
+            spamSimilarity += 1
+            
+    return hamSimilarity, spamSimilarity
 
 
 def split_set(data, trainProp):
     random.shuffle(data)
-    
-    trainData = []
-    testData = []
-    trainNumber = data.size * trainProp
-    print(data.size)
-    print(trainNumber)
-    
-    for x in range(data.size):
-        if(x < trainNumber):
-            trainData.append(data[x])
-        else:
-            testData.append(data[x])
+    trainNumber = int(len(data) * trainProp)
+    trainData = data[:trainNumber]
+    testData = data[trainNumber:]
     
     return trainData, testData
 
