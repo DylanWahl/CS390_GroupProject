@@ -123,6 +123,29 @@ def get_train_test(file, size_test):
   X_train,X_test,y_train,y_test = train_test_split(df["msg"],df["label"], test_size = size_test, random_state = 10)
   return X_train,X_test,y_train,y_test
 
+  # ******** Ash's Naive Bayes Functions ******
+  #to get the prior
+def get_prior(data):
+  den = len(data)
+  num = len(data)/3
+  return num/den
+
+# Probability of continous data(Assume Gauss), use Gaussian from Prob Dist. Slide
+def prob(val, mean, sd):
+  var = sd**2
+  denom = (2*np.pi*var)**.5
+  num = np.exp(-(val-mean)**2/(2*var))
+  return num/denom
+
+# Slide 11 from Naive Bayes Slides that we take the product(pi) of our probabilty
+def prod_pi(data):
+    return np.exp(sum(map(np.log, data)))
+
+#Naive Gauss the MAP way from slide 15
+def get_map(data,prior):
+    return prod_pi(data) * prior
+    
+
 <<<<<<< HEAD
 main()
 =======
