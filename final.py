@@ -5,81 +5,102 @@ Created on Mon Apr 27 21:21:20 2020
 @author: WAHLD
 @author: Ashley
 """
+from nltk.corpus import stopwords
+import matplotlib.pyplot as plt
+from collections import Counter
+from string import digits
+from nltk import stem
 import pandas as pd
 import numpy as np
+import string
 import torch
-#Ashley Added some libraries
 import nltk
-from nltk import stem
-from nltk.corpus import stopwords
-
-
+import re
+#nltk.download('stopwords') # if you do not have all nltk library package
 
 def main():
     file = "spam.csv"
     spam = readfile(file)
     hamWords, spamWords, sharedWords = createWordLists(spam)
-    df = read_file('spam.csv')
-    print(convert(df))
-# Ashley's Code ****
-# Ash's work
-        # Note: I do not think we need to have shared words for what he is asking
+    # Return the top 50 words in # just for demonstrating purposes
+    # hamWords
+    get_top(hamWords)
+    # spamWords
+    get_top(spamWords)
+    # sharedWords
+    get_top(sharedWords)
 
-def read_file(strg):
-    df = pd.read_csv(strg, encoding='Windows-1252')
+
+
+def readfile(file):
+    # Read our file, to read properly, set encoding to Windows-1252.
+    df = pd.read_csv(file, encoding='Windows-1252')
+    # Rename our variables for clarity.
     df = df.rename(columns={'v1': 'label', 'v2': 'msg'})
+    # Delete any unnamed columns present.
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
-    df['msg'] = df['msg'].apply(clean_data)
-    df['length'] = df['msg'].apply(len)
-    return convert(df)
+    # Pre-process the data through get_cleaned.
+    df['msg'] = df['msg'].apply(lambda row: get_cleaned(row))
+    # Convert our data frame to a numpy array to convert to dictionary.
+    to_numpy = df.to_numpy()
+    # return our converted numpy array.
+    return to_numpy
 
-# our stemming and lemninzation
-stemmer = stem.SnowballStemmer('english')
-stopwords = set(stopwords.words('english'))
-
-
-def clean_data(doc):  # Rename for clarity
-    lowercase = doc.lower()
-    token = nltk.word_tokenize(lowercase)
-    words = [word for word in token if not word in stopwords]
-    # if there is punc. don't include
-    new_words = [word for word in words if word.isalnum()]
-    words = [stemmer.stem(words) for words in new_words]
-    return words
+# Pre-Processing:  data preparation to.
+    # help the classifier do an optimal classification work.
+# 1. Removes: punctuation and stopwords.
+# 2. Performs: word stemming and removes numeric values.
 
 
-def word_count(msg):
-    word_count = { word: words.count(word) for word in words }
-    return word_count
+def get_cleaned(text):
+    # remove punctuation
+    new_text = ''.join([char for char in text.lower()
+                        if char not in string.punctuation])
+    # tokenize
+    tokens = re.split('\W+', new_text)
+    # remove stopwords
+    clean_text = [
+        word for word in tokens if word not in stopwords.words('english')]
+    # stemm
+    ps = nltk.PorterStemmer()
+    stemmed_text = [ps.stem(word) for word in clean_text]
+    # return final un joined list to separate with in dict
+    joined = " ".join([word for word in stemmed_text])
+    # remove any numbers presetn
+    final_text = "".join(filter(lambda x: not x.isdigit(), joined))
+    return final_text
+# 3. Frequent Words Identification of top 50 most used words.
 
-def convert(df):
-    str_to_num = {'ham': 0, 'spam': 1}
-    new_df = df.replace(str_to_num)
-    return df.to_dict('index') #convert to dictionary
 
+def get_top(mail_dict):
+    the = Counter(mail_dict)
+    top = the.most_common(50)
+    for i in top:
+        print(i[0], ": ", i[1])
 
+# Word Count: dictionary conversion that provide
+    # the count of every word in the data set
 
-
-
-# End of Ashley's Code ****
 
 def createWordLists(array):
+    # Create empty sets of dictionaries to fill with values
     hamWords = {}
     spamWords = {}
     sharedWords = {}
+    # split the numpy array into hamWordsand spamWords
     for x in array:
         x[1] = x[1].split()
         if x[0] == 'ham':
             workingDict = hamWords
         elif x[0] == 'spam':
             workingDict = spamWords
-
+        # for the words in our messages, set the value
         for w in x[1]:
-            w = w.lower()
+            # returns the vlaue of a key
             value = workingDict.setdefault(w, 0) + 1
-            workingDict.update({w : value})
-
-
+            # Updates the dictionary with the elements from our array
+            workingDict.update({w: value})
+    # **** I will let you comment this Dyl ****
         delete = []
         for x in hamWords.keys():
             if(spamWords.get(x, 0) != 0):
@@ -93,14 +114,7 @@ def createWordLists(array):
         for key in delete:
             hamWords.pop(key)
 
-
     return hamWords, spamWords, sharedWords
 
-
-def readfile(file):
-    spam = pd.read_csv(file, encoding='Windows-1252')
-    spam = spam.to_numpy()
-    spam = spam[..., :2]
-    return spam
 
 main()
