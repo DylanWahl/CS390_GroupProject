@@ -1,10 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Apr 27 21:21:20 2020
-
-@author: WAHLD
-@author: Ashley
-"""
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
 from nltk.corpus import stopwords
 import matplotlib.pyplot as plt
 from collections import Counter
@@ -16,19 +11,27 @@ import string
 import torch
 import nltk
 import re
-#nltk.download('stopwords') # if you do not have all nltk library package
 
+#nltk.download('stopwords')# Uncomment if don't have this package
+
+# Main function where all other functions are called.
 def main():
     file = "spam.csv"
-    spam = readfile(file)
-    hamWords, spamWords, sharedWords = createWordLists(spam)
+    df = readfile(file)
+    numpy_df = convert_file(df)
+    hamWords, spamWords, sharedWords = createWordLists(numpy_df)
     # Return the top 50 words in # just for demonstrating purposes
     # hamWords
+    print("Top 50 Ham")
     get_top(hamWords)
     # spamWords
+    print("Top 50 Spam")
     get_top(spamWords)
     # sharedWords
+    print("Top 50 Shared Words")
     get_top(sharedWords)
+
+
 
 
 
@@ -41,10 +44,13 @@ def readfile(file):
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
     # Pre-process the data through get_cleaned.
     df['msg'] = df['msg'].apply(lambda row: get_cleaned(row))
-    # Convert our data frame to a numpy array to convert to dictionary.
-    to_numpy = df.to_numpy()
-    # return our converted numpy array.
-    return to_numpy
+    # Drop any duplicate data
+    df = df.drop_duplicates()
+    return df
+
+
+def convert_file(data_frame):
+    return data_frame.to_numpy()
 
 # Pre-Processing:  data preparation to.
     # help the classifier do an optimal classification work.
@@ -115,6 +121,79 @@ def createWordLists(array):
             hamWords.pop(key)
 
     return hamWords, spamWords, sharedWords
+
+def main():
+    file = "spam.csv"
+    df = readfile(file)
+    numpy_df = convert_file(df)
+    hamWords, spamWords, sharedWords = createWordLists(numpy_df)
+    # Return the top 50 words in # just for demonstrating purposes
+    # hamWords
+    print("Top 50 Ham")
+    get_top(hamWords)
+    # spamWords
+    print("Top 50 Spam")
+    get_top(spamWords)
+    # sharedWords
+    print("Top 50 Shared Words")
+    get_top(sharedWords)
+
+# **************** NOT FINAL: Still working on **********
+def torch_conversion(strg):
+    csv = pd.read_csv(strg)
+    to_nump = csv.to_numpy()
+    convert = torch.from_numpy(to_nump)
+    return convert
+
+
+
+# ! ! ! Need to figure out tokens
+def get_dummy_data(batch_size,num_in):
+    x = torch.randn(batch_size, n_in) # 10*10 tensor
+    test = torch_conversion('dr.csv')
+    # should be a token from the csv file 2 classes since 2 outputs?
+    y = torch.tensor([[0.0], [1.0]]) # target tensor of size 10
+    return x,y
+
+
+
+def get_model(num_in,num_out,num_hidden):
+    model = nn.Sequential(nn.Linear(num_in, num_hidden),
+    nn.ReLU(),
+    nn.Linear(num_hidden, num_out),
+    nn.Sigmoid())
+    return model
+
+
+
+def get_hidden_num(num_in,num_out,n):
+    a = 7
+    return n/(a*(num_in + num_out))
+
+def get_gradient_descent(x_train, y_train):
+    for epoch in range(50):
+        #To store our loss values
+        loss_val = []
+        # Define our criterion using MSELoss
+        criterion = torch.nn.MSELoss()
+        # optimiser uses the rate of loss function w.r.t. the parameters
+        optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+        # Forward Propagation
+        y_pred = model(x_train)
+        # Compute and print loss
+        loss = criterion(y_pred, y_train)
+        # Add our loss items to the array
+        loss_val.append(loss.item())
+        # Zero the gradients
+        optimizer.zero_grad()
+        # Pass a predition function
+        pred = torch.max(y_pred,1)[1].eq(y_train).sum()
+        # Test the accuracy of the prediction
+        accuracy = pred * 100.0 / len(x_train)
+        # perform a backward pass (backpropagation)
+        loss.backward()
+        # Update the parameters
+        optimizer.step()
 
 
 main()
