@@ -118,12 +118,17 @@ def createWordLists(array):
             hamWords.pop(key)
 
     return hamWords, spamWords, sharedWords
+def get_train_test(file, tst_sz):
+  df = readfile(file)
+  X_train,X_test,y_train,y_test = train_test_split(df["msg"],df["label"], test_size = tst_sz, random_state = 10)
+  return X_train,X_test,y_train,y_test
 
 <<<<<<< HEAD
 main()
 =======
 
 >>>>>>> 405c0e47dbcc8f9cad47f6f2dd2536cb2feab7fa
+
 
 # **************** NOT FINAL: Still working on **********
 def torch_conversion(strg):
