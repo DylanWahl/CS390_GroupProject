@@ -118,9 +118,9 @@ def createWordLists(array):
             hamWords.pop(key)
 
     return hamWords, spamWords, sharedWords
-def get_train_test(file, tst_sz):
+def get_train_test(file, size_test):
   df = readfile(file)
-  X_train,X_test,y_train,y_test = train_test_split(df["msg"],df["label"], test_size = tst_sz, random_state = 10)
+  X_train,X_test,y_train,y_test = train_test_split(df["msg"],df["label"], test_size = size_test, random_state = 10)
   return X_train,X_test,y_train,y_test
 
 <<<<<<< HEAD
