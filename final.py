@@ -144,7 +144,7 @@ def prod_pi(data):
 #Naive Gauss the MAP way from slide 15
 def get_map(data,prior):
     return prod_pi(data) * prior
-    
+
 
 <<<<<<< HEAD
 main()
@@ -161,6 +161,17 @@ def torch_conversion(strg):
     return convert
 
 
+def get_is_in(text1,text2):
+  lst=[]
+  vect = [i in text1 for i in text2]
+
+  for i in vect:
+    if i:
+      lst.append(1)
+    else:
+      lst.append(0)
+  print(lst)
+  
 
 # ! ! ! Need to figure out tokens
 def get_dummy_data(batch_size,num_in):
