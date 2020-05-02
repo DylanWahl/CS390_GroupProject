@@ -157,7 +157,6 @@ def createWordLists(array):
     sharedWords = {}
     # split the numpy array into hamWordsand spamWords
     for x in array:
-        print(x[1])
         x[1] = x[1].split()
         if x[0] == 'ham':
             workingDict = hamWords
