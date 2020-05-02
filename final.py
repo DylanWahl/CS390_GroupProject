@@ -7,6 +7,7 @@ from string import digits
 from nltk import stem
 import pandas as pd
 import numpy as np
+import random
 import string
 import torch
 import nltk
@@ -16,22 +17,67 @@ import re
 
 # Main function where all other functions are called.
 def main():
+    TRAIN_PERCENTAGE_ONE = .7
+    TRAIN_PERCENTAGE_TWO = .8
     file = "spam.csv"
     df = readfile(file)
+    numpy_df = convert_file(df)
+    trainSet, testSet = split_set(numpy_df, TRAIN_PERCENTAGE_ONE)
+    hamWords, spamWords, sharedWords = createWordLists(trainSet)
+    print(hamWords)
+    correctCount = 0
+    incorrectCount = 0
+    for x in testSet:
+        hamSimilarity, spamSimilarity = predict_class(hamWords, spamWords, x[1])
+        if(spamSimilarity > hamSimilarity):
+            guess = 'spam'
+        else: 
+            guess = 'ham'
+        
+        if(guess == x[0]):
+            correctCount += 1
+        else:
+            incorrectCount += 1
+            
+    print('incorrect: ', incorrectCount, ', correct: ', correctCount)
+    
     dfc = clean_df(df)
     numpy_df = convert_file(dfc)
 
     hamWords, spamWords, sharedWords = createWordLists(numpy_df)
     # Return the top 50 words in # just for demonstrating purposes
     # hamWords
-    print("Top 50 Ham")
-    get_top(hamWords)
+#    print("Top 50 Ham")
+#    get_top(hamWords)
     # spamWords
-    print("Top 50 Spam")
-    get_top(spamWords)
+#    print("Top 50 Spam")
+#    get_top(spamWords)
     # sharedWords
-    print("Top 50 Shared Words")
-    get_top(sharedWords)
+#    print("Top 50 Shared Words")
+#    get_top(sharedWords)
+
+
+def predict_class(hamWords, spamWords, sentence):
+    sentence = get_cleaned(sentence)
+    
+    hamSimilarity = 0
+    spamSimilarity = 0
+    for x in sentence:
+        if(x in hamWords):
+            hamSimilarity += 1
+        if(x in spamWords):
+            spamSimilarity += 1
+            
+    return hamSimilarity, spamSimilarity
+
+
+def split_set(data, trainProp):
+    random.shuffle(data)
+    trainNumber = int(len(data) * trainProp)
+    trainData = data[:trainNumber]
+    testData = data[trainNumber:]
+    
+    return trainData, testData
 
 
 def readfile(file):
