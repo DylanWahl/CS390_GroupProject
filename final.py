@@ -24,10 +24,10 @@ def main():
     df = readfile(file)
     numpy_df = convert_file(df)
     trainSet1, testSet1 = split_set(numpy_df, TRAIN_PERCENTAGE_ONE)
-    trainSet2, testSet2 = split_set(numpy_df, TRAIN_PERCENTAGE_TWO)
+#    trainSet2, testSet2 = split_set(numpy_df, TRAIN_PERCENTAGE_TWO)
     
     hamWords1, spamWords1, sharedWords1 = createWordLists(trainSet1)
-    hamWords2, spamWords2, sharedWords2 = createWordLists(trainSet2)
+#    hamWords2, spamWords2, sharedWords2 = createWordLists(trainSet2)
     
     print('Baysian classifier with a 70:30 train/test split')
     correctCount, incorrectCount = get_results(testSet1, hamWords1, spamWords1)
@@ -36,12 +36,12 @@ def main():
     print('The Baysian classifier correctly Identified the text ', 
           correctPercentage, 'percent of the time!')
     
-    print('Baysian classifier with a 80:20 train/test split')
-    correctCount, incorrectCount = get_results(testSet2, hamWords2, spamWords2)
-    correctPercentage = (correctCount / (correctCount + incorrectCount)) * 100
-    print('incorrect: ', incorrectCount, ', correct: ', correctCount)
-    print('The Baysian classifier correctly Identified the text ', 
-          correctPercentage, 'percent of the time!')
+#    print('Baysian classifier with a 80:20 train/test split')
+#    correctCount, incorrectCount = get_results(testSet2, hamWords2, spamWords2)
+#    correctPercentage = (correctCount / (correctCount + incorrectCount)) * 100
+#    print('incorrect: ', incorrectCount, ', correct: ', correctCount)
+#    print('The Baysian classifier correctly Identified the text ', 
+#          correctPercentage, 'percent of the time!')
 
 
 def get_results(testSet, hamWords, spamWords):
