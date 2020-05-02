@@ -91,12 +91,14 @@ def readfile(file):
     df = df.drop_duplicates()
     return df
 
+
 def clean_df(df):
     df['msg'] = df['msg'].apply(lambda row: get_cleaned(row))
     return df
 
+
 def np_separate(df):
-    return np.array(df.loc[:,df.columns != 'label'])
+    return np.array(df.loc[:, df.columns != 'label'])
 
 
 def clean_split_data(df):
@@ -138,6 +140,10 @@ def get_top(mail_dict):
 
 # Word Count: dictionary conversion that provide
     # the count of every word in the data set
+    
+    
+def convert_file(data_frame):
+    return data_frame.to_numpy()
 
 
 def createWordLists(array):
@@ -173,10 +179,12 @@ def createWordLists(array):
             hamWords.pop(key)
 
     return hamWords, spamWords, sharedWords
+
+
 def get_train_test(file, size_test):
-  df = readfile(file)
-  X_train,X_test,y_train,y_test = train_test_split(df["msg"],df["label"], test_size = size_test, random_state = 10)
-  return X_train,X_test,y_train,y_test
+      df = readfile(file)
+      X_train,X_test,y_train,y_test = train_test_split(df["msg"],df["label"], test_size = size_test, random_state = 10)
+      return X_train,X_test,y_train,y_test
 
   # ******** Ash's Naive Bayes Functions ******
   #to get the prior
@@ -185,21 +193,23 @@ def get_prior(data):
   num = len(data)/3
   return num/den
 
+
 # Probability of continous data(Assume Gauss), use Gaussian from Prob Dist. Slide
 def prob(val, mean, sd):
-  var = sd**2
-  denom = (2*np.pi*var)**.5
-  num = np.exp(-(val-mean)**2/(2*var))
-  return num/denom
+    var = sd**2
+    denom = (2*np.pi*var)**.5
+    num = np.exp(-(val-mean)**2/(2*var))
+    return num/denom
+
 
 # Slide 11 from Naive Bayes Slides that we take the product(pi) of our probabilty
 def prod_pi(data):
     return np.exp(sum(map(np.log, data)))
 
+
 #Naive Gauss the MAP way from slide 15
 def get_map(data,prior):
     return prod_pi(data) * prior
-
 
 
 def torch_conversion(strg):
@@ -209,22 +219,24 @@ def torch_conversion(strg):
     return convert
 
 
-def transform(text1,text2):
-  lst=[]
-  vect = [i in text1 for i in text2]
+def transform(text1, text2):
+    lst = []
+    vect = [i in text1 for i in text2]
 
-  for i in vect:
-    if i:
-      lst.append(1)
-    else:
-      lst.append(0)
-  print(lst)
+    for i in vect:
+        if i:
+            lst.append(1)
+        else:
+            lst.append(0)
+    print(lst)
 
 # option... may work better than my transform looked at sklearn.. CountVectorizer might work
 #cv = CountVectorizer(max_features=max_words, stop_words='english')
 #sparse_matrix = cv.fit_transform(df['label']).toarray()
 
 #n_in, n_h, n_out, batch_size = 51, 25 , 101, 10
+
+
 def get_dummy_data(n_in, n_h, n_out, batch_size):
 	n_in, n_h, n_out, batch_size = 51, 25 , 101, 10
 	x = torch.randn(batch_size, n_in) # 10 x 51
