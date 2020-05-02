@@ -54,12 +54,7 @@ def main():
 
 
 def predict_class(hamWords, spamWords, sentence):
-    
-    sentence = Counter(sentence)
-    
-    
-    
-    
+    sentence = get_cleaned(sentence)
     
     hamSimilarity = 0
     spamSimilarity = 0
