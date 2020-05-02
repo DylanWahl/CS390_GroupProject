@@ -103,7 +103,7 @@ def np_separate(df):
 
 
 def clean_split_data(df):
-    return np.char.lower([get_cleaned(sentence)for sentence in uncleaned])
+    return np.char.lower([get_cleaned(sentence)for sentence in df])
 
 # Pre-Processing:  data preparation to.
     # help the classifier do an optimal classification work.
