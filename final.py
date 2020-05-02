@@ -45,8 +45,8 @@ def main():
     print(" Neural Networks Classifier with a 70: 30 train/test split ")
     trainSet1, testSet1 = split_set(numpy_df, TRAIN_PERCENTAGE_ONE)
     n_in, n_h, n_out, batch_size = 51, 25, 101, 10
-    model = get_model(n_in, n_h, n_out, batch_size)
-    x, y = get_dummy_data()
+    model = get_model(n_in, n_h, n_out)
+    x, y = get_dummy_data(n_in, n_h, n_out, batch_size)
     get_NN1(get_top(np.array(hamWords), model, trainSet1, testSet1), x, y)
     get_NN2(get_top(np.array(hamWords).get_top(np.array(spamWords), x, y)))
 
