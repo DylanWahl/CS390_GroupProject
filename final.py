@@ -25,23 +25,32 @@ def main():
     numpy_df = convert_file(df)
     trainSet1, testSet1 = split_set(numpy_df, TRAIN_PERCENTAGE_ONE)
 #    trainSet2, testSet2 = split_set(numpy_df, TRAIN_PERCENTAGE_TWO)
-    
+
     hamWords1, spamWords1, sharedWords1 = createWordLists(trainSet1)
 #    hamWords2, spamWords2, sharedWords2 = createWordLists(trainSet2)
-    
+
     print('Baysian classifier with a 70:30 train/test split')
     correctCount, incorrectCount = get_results(testSet1, hamWords1, spamWords1)
     correctPercentage = (correctCount / (correctCount + incorrectCount)) * 100
     print('incorrect: ', incorrectCount, ', correct: ', correctCount)
-    print('The Baysian classifier correctly Identified the text ', 
+    print('The Baysian classifier correctly Identified the text ',
           correctPercentage, 'percent of the time!')
-    
+
 #    print('Baysian classifier with a 80:20 train/test split')
 #    correctCount, incorrectCount = get_results(testSet2, hamWords2, spamWords2)
 #    correctPercentage = (correctCount / (correctCount + incorrectCount)) * 100
 #    print('incorrect: ', incorrectCount, ', correct: ', correctCount)
-#    print('The Baysian classifier correctly Identified the text ', 
+#    print('The Baysian classifier correctly Identified the text ',
 #          correctPercentage, 'percent of the time!')
+    print(" Neural Networks Classifier with a 70: 30 train/test split ")
+    trainSet1, testSet1 = split_set(numpy_df, TRAIN_PERCENTAGE_ONE)
+    n_in, n_h, n_out, batch_size = 51, 25, 101, 10
+    model = get_model(n_in, n_h, n_out, batch_size)
+    x,y = get_dummy_data()
+    get_NN1(get_top(np.array(hamWords), model,trainSet1, testSet1),x,y)
+    get_NN2(get_top(np.array(hamWords).get_top(np.array(spamWords),x,y)
+
+
 
 
 def get_results(testSet, hamWords, spamWords):
@@ -51,15 +60,15 @@ def get_results(testSet, hamWords, spamWords):
         hamSimilarity, spamSimilarity = predict_class(hamWords, spamWords, x[1])
         if(spamSimilarity > hamSimilarity):
             guess = 'spam'
-        else: 
+        else:
             guess = 'ham'
-        
+
         if(guess == x[0]):
             correctCount += 1
         else:
             incorrectCount += 1
     return correctCount, incorrectCount
-            
+
 
 def predict_class(hamWords, spamWords, sentence):
     sentence = get_cleaned(sentence)
@@ -266,9 +275,8 @@ def get_model(num_in, num_out, num_hidden):
     return model
 
 
-def get_NN1(top_spam, num_in, num_out, num_hidden,x, y):
-    model = get_model(num_in, num_out, num_hidden)
-    
+def get_NN1(top_spam, model, x, y):
+
     # Gradient Descent
 
     criterion = torch.nn.MSELoss()
@@ -296,8 +304,8 @@ def get_NN1(top_spam, num_in, num_out, num_hidden,x, y):
         optimizer.step()
 
 
-def get_NN2(n_in, n_h, n_out, batch_size, top_spam, top_ham, x, y):
-    model = get_model(n_in, n_h, n_out, batch_size)
+def get_NN2(model, top_spam, top_ham, x, y):
+
     criterion = torch.nn.MSELoss()
     # Construct the optimizer (Stochastic Gradient Descent in this case)
     optimizer = torch.optim.SGD(
