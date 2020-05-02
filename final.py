@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from nltk.corpus import stopwords
 import matplotlib.pyplot as plt
 from collections import Counter
+from torch import tensor, nn
 from string import digits
 from nltk import stem
 import pandas as pd
@@ -258,7 +259,8 @@ def get_model(num_in, num_out, num_hidden):
     return model
 
 
-def get_NN1(top_spam, x, y):
+def get_NN1(top_spam, num_in, num_out, num_hidden,x, y):
+    get_model(num_in, num_out, num_hidden)
     criterion = torch.nn.MSELoss()
     # Construct the optimizer (Stochastic Gradient Descent in this case)
     optimizer = torch.optim.SGD(
