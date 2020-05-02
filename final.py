@@ -23,14 +23,14 @@ def main():
     file = "spam.csv"
     df = readfile(file)
     numpy_df = convert_file(df)
-    trainSet1, testSet1 = split_set(numpy_df, TRAIN_PERCENTAGE_ONE)
+    trainSet, testSet = split_set(numpy_df, TRAIN_PERCENTAGE_ONE)
 #    trainSet2, testSet2 = split_set(numpy_df, TRAIN_PERCENTAGE_TWO)
 
-    hamWords1, spamWords1, sharedWords1 = createWordLists(trainSet1)
+    hamWords, spamWords, sharedWords = createWordLists(trainSet)
 #    hamWords2, spamWords2, sharedWords2 = createWordLists(trainSet2)
 
     print('Baysian classifier with a 70:30 train/test split')
-    correctCount, incorrectCount = get_results(testSet1, hamWords1, spamWords1)
+    correctCount, incorrectCount = get_results(testSet, hamWords, spamWords)
     correctPercentage = (correctCount / (correctCount + incorrectCount)) * 100
     print('incorrect: ', incorrectCount, ', correct: ', correctCount)
     print('The Baysian classifier correctly Identified the text ',
@@ -46,11 +46,9 @@ def main():
     trainSet1, testSet1 = split_set(numpy_df, TRAIN_PERCENTAGE_ONE)
     n_in, n_h, n_out, batch_size = 51, 25, 101, 10
     model = get_model(n_in, n_h, n_out, batch_size)
-    x,y = get_dummy_data()
-    get_NN1(get_top(np.array(hamWords), model,trainSet1, testSet1),x,y)
-    get_NN2(get_top(np.array(hamWords).get_top(np.array(spamWords),x,y)
-
-
+    x, y = get_dummy_data()
+    get_NN1(get_top(np.array(hamWords), model, trainSet1, testSet1), x, y)
+    get_NN2(get_top(np.array(hamWords).get_top(np.array(spamWords), x, y)))
 
 
 def get_results(testSet, hamWords, spamWords):
