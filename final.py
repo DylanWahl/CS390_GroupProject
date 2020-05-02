@@ -85,8 +85,10 @@ def get_cleaned(text):
 def get_top(mail_dict):
     the = Counter(mail_dict)
     top = the.most_common(50)
+    lst = []
     for i in top:
-        print(i[0], ": ", i[1])
+        lst.append(i[0])
+    return np.array(lst)
 
 # Word Count: dictionary conversion that provide
     # the count of every word in the data set
@@ -172,6 +174,9 @@ def transform(text1,text2):
       lst.append(0)
   print(lst)
 
+# option... may work better than my transform looked at sklearn.. CountVectorizer might work
+#cv = CountVectorizer(max_features=max_words, stop_words='english')
+#sparse_matrix = cv.fit_transform(df['label']).toarray()
 
 #n_in, n_h, n_out, batch_size = 51, 25 , 101, 10
 def get_dummy_data(n_in, n_h, n_out, batch_size):
@@ -246,5 +251,6 @@ def get_NN2(top_spam,top_ham, x,y):
 		loss.backward()
 		# Update the parameters
 		optimizer.step()
+
 
 main()
