@@ -12,7 +12,7 @@ import string
 import torch
 import nltk
 import re
-#nltk.download('stopwords')# Uncomment if don't have this package
+# nltk.download('stopwords')# Uncomment if don't have this package
 
 
 # Main function where all other functions are called.
@@ -28,19 +28,20 @@ def main():
     correctCount = 0
     incorrectCount = 0
     for x in testSet:
-        hamSimilarity, spamSimilarity = predict_class(hamWords, spamWords, x[1])
+        hamSimilarity, spamSimilarity = predict_class(
+            hamWords, spamWords, x[1])
         if(spamSimilarity > hamSimilarity):
             guess = 'spam'
-        else: 
+        else:
             guess = 'ham'
-        
+
         if(guess == x[0]):
             correctCount += 1
         else:
             incorrectCount += 1
-            
+
     print('incorrect: ', incorrectCount, ', correct: ', correctCount)
-    
+
     dfc = clean_df(df)
     numpy_df = convert_file(dfc)
 
@@ -59,7 +60,7 @@ def main():
 
 def predict_class(hamWords, spamWords, sentence):
     sentence = get_cleaned(sentence)
-    
+
     hamSimilarity = 0
     spamSimilarity = 0
     for x in sentence:
@@ -67,7 +68,7 @@ def predict_class(hamWords, spamWords, sentence):
             hamSimilarity += 1
         if(x in spamWords):
             spamSimilarity += 1
-            
+
     return hamSimilarity, spamSimilarity
 
 
@@ -76,7 +77,7 @@ def split_set(data, trainProp):
     trainNumber = int(len(data) * trainProp)
     trainData = data[:trainNumber]
     testData = data[trainNumber:]
-    
+
     return trainData, testData
 
 
@@ -140,8 +141,8 @@ def get_top(mail_dict):
 
 # Word Count: dictionary conversion that provide
     # the count of every word in the data set
-    
-    
+
+
 def convert_file(data_frame):
     return data_frame.to_numpy()
 
@@ -182,24 +183,27 @@ def createWordLists(array):
 
 
 def get_train_test(file, size_test):
-      df = readfile(file)
-      X_train,X_test,y_train,y_test = train_test_split(df["msg"],df["label"], test_size = size_test, random_state = 10)
-      return X_train,X_test,y_train,y_test
+    df = readfile(file)
+    X_train, X_test, y_train, y_test = train_test_split(
+        df["msg"], df["label"], test_size=size_test, random_state=10)
+    return X_train, X_test, y_train, y_test
 
-  # ******** Ash's Naive Bayes Functions ******
-  #to get the prior
+# ******** Ash's Naive Bayes Functions ******
+# to get the prior
+
+
 def get_prior(data):
-  den = len(data)
-  num = len(data)/3
-  return num/den
+    den = len(data)
+    num = len(data) / 3
+    return num / den
 
 
 # Probability of continous data(Assume Gauss), use Gaussian from Prob Dist. Slide
 def prob(val, mean, sd):
     var = sd**2
-    denom = (2*np.pi*var)**.5
-    num = np.exp(-(val-mean)**2/(2*var))
-    return num/denom
+    denom = (2 * np.pi * var)**.5
+    num = np.exp(-(val - mean)**2 / (2 * var))
+    return num / denom
 
 
 # Slide 11 from Naive Bayes Slides that we take the product(pi) of our probabilty
@@ -207,8 +211,8 @@ def prod_pi(data):
     return np.exp(sum(map(np.log, data)))
 
 
-#Naive Gauss the MAP way from slide 15
-def get_map(data,prior):
+# Naive Gauss the MAP way from slide 15
+def get_map(data, prior):
     return prod_pi(data) * prior
 
 
@@ -238,77 +242,84 @@ def transform(text1, text2):
 
 
 def get_dummy_data(n_in, n_h, n_out, batch_size):
-	n_in, n_h, n_out, batch_size = 51, 25 , 101, 10
-	x = torch.randn(batch_size, n_in) # 10 x 51
-	x.size()
-	y = torch.tensor([[1.0], [0.0], [0.0], [1.0], [1.0], [1.0], [0.0], [0.0], [1.0], [1.0]]) # target tensor of size 10
-	return x,y
+    n_in, n_h, n_out, batch_size = 51, 25, 101, 10
+    x = torch.randn(batch_size, n_in)  # 10 x 51
+    x.size()
+    y = torch.tensor([[1.0], [0.0], [0.0], [1.0], [1.0], [1.0], [0.0], [
+                     0.0], [1.0], [1.0]])  # target tensor of size 10
+    return x, y
 
-def get_model(num_in,num_out,num_hidden):
+
+def get_model(num_in, num_out, num_hidden):
     model = nn.Sequential(nn.Linear(num_in, num_hidden),
-    nn.ReLU(),
-    nn.Linear(num_hidden, num_out),
-    nn.Sigmoid())
+                          nn.ReLU(),
+                          nn.Linear(num_hidden, num_out),
+                          nn.Sigmoid())
     return model
 
 
-def get_NN1(top_spam, x,y):
-	criterion = torch.nn.MSELoss()
-	# Construct the optimizer (Stochastic Gradient Descent in this case)
-	optimizer = torch.optim.SGD(model.parameters(), lr=0.01) # lr=learning rate
-	# Gradient Descent
+def get_NN1(top_spam, x, y):
+    criterion = torch.nn.MSELoss()
+    # Construct the optimizer (Stochastic Gradient Descent in this case)
+    optimizer = torch.optim.SGD(
+        model.parameters(), lr=0.01)  # lr=learning rate
+    # Gradient Descent
 
-	criterion = torch.nn.MSELoss()
-	# Construct the optimizer (Stochastic Gradient Descent in this case)
-	optimizer = torch.optim.SGD(model.parameters(), lr=0.01) # lr=learning rate
+    criterion = torch.nn.MSELoss()
+    # Construct the optimizer (Stochastic Gradient Descent in this case)
+    optimizer = torch.optim.SGD(
+        model.parameters(), lr=0.01)  # lr=learning rate
 
-	loss_val = []
-	# Gradient Descent
-	# Gradient Descent
-	for epoch in range(500):
-		# Forward pass: Compute predicted y by passing x to the model
-		y_pred = model(x)
-		# Compute and print loss
-		loss = criterion(y_pred, y)
-		loss_values.append(loss.item())
+    loss_val = []
+    # Gradient Descent
+    # Gradient Descent
+    for epoch in range(500):
+        # Forward pass: Compute predicted y by passing x to the model
+        y_pred = model(x)
+        # Compute and print loss
+        loss = criterion(y_pred, y)
+        loss_values.append(loss.item())
 
-		print('epoch: ', epoch,' loss: ', loss.item())
-		# Zero gradients, perform a backward pass, and update the weights to zero
-		# because PyTorch accumulates the gradients on subsequent backward passes.
-		optimizer.zero_grad()
-		# perform a backward pass (backpropagation)
-		loss.backward()
-		# Update the parameters
-		optimizer.step()
+        print('epoch: ', epoch, ' loss: ', loss.item())
+        # Zero gradients, perform a backward pass, and update the weights to zero
+        # because PyTorch accumulates the gradients on subsequent backward passes.
+        optimizer.zero_grad()
+        # perform a backward pass (backpropagation)
+        loss.backward()
+        # Update the parameters
+        optimizer.step()
 
-def get_NN2(top_spam,top_ham, x,y):
-	criterion = torch.nn.MSELoss()
-	# Construct the optimizer (Stochastic Gradient Descent in this case)
-	optimizer = torch.optim.SGD(model.parameters(), lr=0.01) # lr=learning rate
-	# Gradient Descent
 
-	criterion = torch.nn.MSELoss()
-	# Construct the optimizer (Stochastic Gradient Descent in this case)
-	optimizer = torch.optim.SGD(model.parameters(), lr=0.01) # lr=learning rate
+def get_NN2(top_spam, top_ham, x, y):
+    criterion = torch.nn.MSELoss()
+    # Construct the optimizer (Stochastic Gradient Descent in this case)
+    optimizer = torch.optim.SGD(
+        model.parameters(), lr=0.01)  # lr=learning rate
+    # Gradient Descent
 
-	loss_val = []
-	# Gradient Descent
-	# Gradient Descent
-	for epoch in range(500):
-		# Forward pass: Compute predicted y by passing x to the model
-		y_pred = model(x)
-		# Compute and print loss
-		loss = criterion(y_pred, y)
-		loss_values.append(loss.item())
+    criterion = torch.nn.MSELoss()
+    # Construct the optimizer (Stochastic Gradient Descent in this case)
+    optimizer = torch.optim.SGD(
+        model.parameters(), lr=0.01)  # lr=learning rate
 
-		print('epoch: ', epoch,' loss: ', loss.item())
-		# Zero gradients, perform a backward pass, and update the weights to zero
-		# because PyTorch accumulates the gradients on subsequent backward passes.
-		optimizer.zero_grad()
-		# perform a backward pass (backpropagation)
-		loss.backward()
-		# Update the parameters
-		optimizer.step()
+    loss_val = []
+    # Gradient Descent
+    # Gradient Descent
+    for epoch in range(500):
+        # Forward pass: Compute predicted y by passing x to the model
+        y_pred = model(x)
+        # Compute and print loss
+        loss = criterion(y_pred, y)
+        loss_values.append(loss.item())
+
+        print('epoch: ', epoch, ' loss: ', loss.item())
+        # Zero gradients, perform a backward pass, and update the weights to zero
+        # because PyTorch accumulates the gradients on subsequent backward passes.
+        optimizer.zero_grad()
+        # perform a backward pass (backpropagation)
+        loss.backward()
+        # Update the parameters
+        optimizer.step()
 
 
 main()
