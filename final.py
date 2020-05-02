@@ -23,41 +23,43 @@ def main():
     file = "spam.csv"
     df = readfile(file)
     numpy_df = convert_file(df)
-    trainSet, testSet = split_set(numpy_df, TRAIN_PERCENTAGE_ONE)
-    hamWords, spamWords, sharedWords = createWordLists(trainSet)
-    print(hamWords)
+    trainSet1, testSet1 = split_set(numpy_df, TRAIN_PERCENTAGE_ONE)
+    trainSet2, testSet2 = split_set(numpy_df, TRAIN_PERCENTAGE_TWO)
+    
+    hamWords1, spamWords1, sharedWords1 = createWordLists(trainSet1)
+    hamWords2, spamWords2, sharedWords2 = createWordLists(trainSet2)
+    
+    print('Baysian classifier with a 70:30 train/test split')
+    correctCount, incorrectCount = get_results(testSet1, hamWords1, spamWords1)
+    correctPercentage = (correctCount / (correctCount + incorrectCount)) * 100
+    print('incorrect: ', incorrectCount, ', correct: ', correctCount)
+    print('The Baysian classifier correctly Identified the text ', 
+          correctPercentage, 'percent of the time!')
+    
+    print('Baysian classifier with a 80:20 train/test split')
+    correctCount, incorrectCount = get_results(testSet2, hamWords2, spamWords2)
+    correctPercentage = (correctCount / (correctCount + incorrectCount)) * 100
+    print('incorrect: ', incorrectCount, ', correct: ', correctCount)
+    print('The Baysian classifier correctly Identified the text ', 
+          correctPercentage, 'percent of the time!')
+
+
+def get_results(testSet, hamWords, spamWords):
     correctCount = 0
     incorrectCount = 0
     for x in testSet:
-        hamSimilarity, spamSimilarity = predict_class(
-            hamWords, spamWords, x[1])
+        hamSimilarity, spamSimilarity = predict_class(hamWords, spamWords, x[1])
         if(spamSimilarity > hamSimilarity):
             guess = 'spam'
-        else:
+        else: 
             guess = 'ham'
-
+        
         if(guess == x[0]):
             correctCount += 1
         else:
             incorrectCount += 1
-
-    print('incorrect: ', incorrectCount, ', correct: ', correctCount)
-
-    dfc = clean_df(df)
-    numpy_df = convert_file(dfc)
-
-    hamWords, spamWords, sharedWords = createWordLists(numpy_df)
-    # Return the top 50 words in # just for demonstrating purposes
-    # hamWords
-#    print("Top 50 Ham")
-#    get_top(hamWords)
-    # spamWords
-#    print("Top 50 Spam")
-#    get_top(spamWords)
-    # sharedWords
-#    print("Top 50 Shared Words")
-#    get_top(sharedWords)
-
+    return correctCount, incorrectCount
+            
 
 def predict_class(hamWords, spamWords, sentence):
     sentence = get_cleaned(sentence)
@@ -155,6 +157,7 @@ def createWordLists(array):
     sharedWords = {}
     # split the numpy array into hamWordsand spamWords
     for x in array:
+        print(x[1])
         x[1] = x[1].split()
         if x[0] == 'ham':
             workingDict = hamWords
@@ -166,17 +169,22 @@ def createWordLists(array):
             value = workingDict.setdefault(w, 0) + 1
             # Updates the dictionary with the elements from our array
             workingDict.update({w: value})
-    # **** I will let you comment this Dyl ****
+        # removes the words that are shared by both the ham and spam lists andputs them in a shared list
         delete = []
         for x in hamWords.keys():
+            # if the word is in the other list
             if(spamWords.get(x, 0) != 0):
+                # retrieves the value to update shared words
                 value = spamWords.get(x)
                 sharedWords.update({x: value})
+                # removes word from spam list
                 spamWords.pop(x)
+                # updates shared words a second time
                 newValue = sharedWords.get(x) + hamWords.get(x)
                 sharedWords.update({x: newValue})
                 delete.append(x)
 
+        #delete all of the shared words since i couldnt do it while iterating
         for key in delete:
             hamWords.pop(key)
 
