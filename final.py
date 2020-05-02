@@ -260,11 +260,8 @@ def get_model(num_in, num_out, num_hidden):
 
 
 def get_NN1(top_spam, num_in, num_out, num_hidden,x, y):
-    get_model(num_in, num_out, num_hidden)
-    criterion = torch.nn.MSELoss()
-    # Construct the optimizer (Stochastic Gradient Descent in this case)
-    optimizer = torch.optim.SGD(
-        model.parameters(), lr=0.01)  # lr=learning rate
+    model = get_model(num_in, num_out, num_hidden)
+    
     # Gradient Descent
 
     criterion = torch.nn.MSELoss()
@@ -272,7 +269,7 @@ def get_NN1(top_spam, num_in, num_out, num_hidden,x, y):
     optimizer = torch.optim.SGD(
         model.parameters(), lr=0.01)  # lr=learning rate
 
-    loss_val = []
+    loss_values = []
     # Gradient Descent
     # Gradient Descent
     for epoch in range(500):
@@ -292,7 +289,8 @@ def get_NN1(top_spam, num_in, num_out, num_hidden,x, y):
         optimizer.step()
 
 
-def get_NN2(top_spam, top_ham, x, y):
+def get_NN2(n_in, n_h, n_out, batch_size, top_spam, top_ham, x, y):
+    model = get_model(n_in, n_h, n_out, batch_size)
     criterion = torch.nn.MSELoss()
     # Construct the optimizer (Stochastic Gradient Descent in this case)
     optimizer = torch.optim.SGD(
@@ -304,7 +302,7 @@ def get_NN2(top_spam, top_ham, x, y):
     optimizer = torch.optim.SGD(
         model.parameters(), lr=0.01)  # lr=learning rate
 
-    loss_val = []
+    loss_values = []
     # Gradient Descent
     # Gradient Descent
     for epoch in range(500):
