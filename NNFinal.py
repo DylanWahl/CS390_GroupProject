@@ -46,6 +46,7 @@ def main():
     bar_Top_spam(spam)
 
     combined = combine(ham,spam)
+
     NN1(n_in, n_h, n_out, batch_size)
     NN2(n_in, n_h, n_out, batch_size)
 
