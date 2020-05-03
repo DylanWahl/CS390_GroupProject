@@ -30,24 +30,24 @@ def main():
 
     hamWords, spamWords, sharedWords = createWordLists(numpy_df)
     totalDict = mergeDicts(hamWords, spamWords, sharedWords)
-    
+
     print("A list of all unique words after cleaning and stemming with their counts")
-    print(totalDict)    
-    
+    print(totalDict)
+
     displayArray = []
     print("These are the top 50 Ham words in the set after cleaning and stemming:")
     print(get_top(hamWords), '\n')
-    
+
     print("These are the top 50 Spam words in the set after cleaning and stemming:")
     print(get_top(spamWords), '\n')
-    
-    
+
+
     print("These are the top 50 words in the set after cleaning and stemming:")
     print(get_top(sharedWords), '\n')
-    
+
 #   print(identify_outliers(totalDict))
-    
-    
+
+
 def mergeDicts(hamWords, spamWords, sharedWords):
     spamWords.update(sharedWords)
     hamWords.update(spamWords)
@@ -121,6 +121,16 @@ def get_top(mail_dict):
         lst.append(i[0])
     return np.array(lst)
 
+
+def get_top_df(df):
+    # top 50 ham
+    hamCountDict = Counter(" ".join(df[df['label']=='ham']["msg"]).split()).most_common(50)
+    df_ham = pd.DataFrame.from_dict(hamCountDict)
+    # top 50 spam
+    spamCountDict = Counter(" ".join(df[df['label']=='spam']["msg"]).split()).most_common(50)
+    df_spam = pd.DataFrame.from_dict(spamCountDict)
+    # Return our top 50 ham and spam as np array (as suggested)
+    return df_ham[0], df_spam[0]
 # Word Count: dictionary conversion that provide
     # the count of every word in the data set
 
