@@ -29,6 +29,10 @@ def main():
     numpy_df = convert_file(df)
 
     hamWords, spamWords, sharedWords = createWordLists(numpy_df)
+    totalDict = mergeDicts(hamWords, spamWords, sharedWords)
+    
+    print("A list of all unique words after cleaning and stemming with their counts")
+    print(totalDict)    
     
     displayArray = []
     print("These are the top 50 Ham words in the set after cleaning and stemming:")
@@ -37,12 +41,17 @@ def main():
     print("These are the top 50 Spam words in the set after cleaning and stemming:")
     print(get_top(spamWords), '\n')
     
-    totalDict = {}
-    totalDict.update(hamWords)
-    totalDict.update(spamWords)
-    totalDict.update(sharedWords)
+    
     print("These are the top 50 words in the set after cleaning and stemming:")
-    print(get_top(spamWords), '\n')
+    print(get_top(sharedWords), '\n')
+    
+#   print(identify_outliers(totalDict))
+    
+    
+def mergeDicts(hamWords, spamWords, sharedWords):
+    spamWords.update(sharedWords)
+    hamWords.update(spamWords)
+    return hamWords
 
 
 def split_set(data, trainProp):
