@@ -31,18 +31,69 @@ def main():
     trainSet, testSet = split_set(numpy_df, TRAIN_PERCENTAGE_ONE)
 #    trainSet2, testSet2 = split_set(numpy_df, TRAIN_PERCENTAGE_TWO)
 
-    hamWords, spamWords, sharedWords = createWordLists(trainSet)
-#    hamWords2, spamWords2, sharedWords2 = createWordLists(trainSet2)
-
     print(" Neural Networks Classifier with a 70: 30 train/test split ")
     trainSet1, testSet1 = split_set(numpy_df, TRAIN_PERCENTAGE_ONE)
     n_in, n_h, n_out, batch_size = 51, 25, 101, 10
     model = get_model(n_in, n_h, n_out)
-    x, y = get_dummy_data(n_in, n_h, n_out, batch_size)
-    get_NN1(get_top(np.array(hamWords), model, trainSet1, testSet1), x, y)
-    get_NN2(get_top(np.array(hamWords).get_top(np.array(spamWords), x, y)))
-    
-    
+    test = ['go', 'jurong', 'u', 'crazi', 'ok', 'bugi','u', 'crazi', 'ok', 'bugi'] # given tes
+
+    ham,spam = get_top(df)
+
+    x = transform(test,ham)
+    y = transform(ham,test)
+
+    bar_Top_ham(ham)
+    bar_Top_spam(spam)
+
+    combined = combine(ham,spam)
+    NN1(n_in, n_h, n_out, batch_size)
+    NN2(n_in, n_h, n_out, batch_size)
+
+
+
+def transform(text1, text2):
+    lst = []
+    vect = [i in text1 for i in text2]
+
+    for i in vect:
+        if i:
+            lst.append(1)
+        else:
+            lst.append(0)
+    return lst
+
+def combine(ham,spam):
+    # Assumes both lists are of the same size.
+    combined = []
+    for i in range(len(ham)):
+        combined.append(ham[i])
+        combined.append(spam[i])
+    return combined
+
+
+def bar_Top_ham(ham):
+    ham.plot.bar(legend = False)
+    y_pos = np.arange(len(ham[0]))
+    plt.xticks(y_pos, ham[0])
+    plt.title('Top 50 words in ham')
+    plt.xlabel('Words')
+    plt.ylabel('Count')
+    plt.show()
+
+def bar_Top_spam(spam):
+    spam.plot.bar(legend = False)
+    y_pos = np.arange(len(spam[0]))
+    plt.xticks(y_pos, spam[0])
+    plt.title('Top 50 words in spam')
+    plt.xlabel('Words')
+    plt.ylabel('Count')
+    plt.show()
+
+def pie_words(df):
+    count_Class.plot(kind = 'pie',labels=df['label'],autopct='%1.0f%%')
+    plt.ylabel('Distribution of words')
+    plt.show()
+
 def split_set(data, trainProp):
     random.shuffle(data)
     trainNumber = int(len(data) * trainProp)
@@ -163,8 +214,8 @@ def get_train_test(file, size_test):
     X_train, X_test, y_train, y_test = train_test_split(
         df["msg"], df["label"], test_size=size_test, random_state=10)
     return X_train, X_test, y_train, y_test
-    
-    
+
+
 def get_prior(data):
     den = len(data)
     num = len(data) / 3
@@ -212,8 +263,6 @@ def transform(text1, text2):
 #sparse_matrix = cv.fit_transform(df['label']).toarray()
 
 #n_in, n_h, n_out, batch_size = 51, 25 , 101, 10
-
-
 def get_dummy_data(n_in, n_h, n_out, batch_size):
     n_in, n_h, n_out, batch_size = 51, 25, 101, 10
     x = torch.randn(batch_size, n_in)  # 10 x 51
@@ -223,34 +272,37 @@ def get_dummy_data(n_in, n_h, n_out, batch_size):
     return x, y
 
 
-def get_model(num_in, num_out, num_hidden):
-    model = nn.Sequential(nn.Linear(num_in, num_hidden),
-                          nn.ReLU(),
-                          nn.Linear(num_hidden, num_out),
-                          nn.Sigmoid())
-    return model
 
 
-def get_NN1(top_spam, model, x, y):
+# layer definition
+#n_in, n_h, n_out, batch_size = 51, 25, 2, 10
+def NN1(n_in, n_h, n_out, batch_size,y):
 
-    # Gradient Descent
+    # Create dummy input and target tensors (data)
+    x = torch.randn(batch_size, n_in) # 10 word sentence
+    # Example sentence has these words that match in our list
+    #y = torch.tensor([[1.0], [0.0], [0.0], [1.0], [1.0], [1.0], [0.0], [0.0], [1.0], [1.0]]) # target tensor of size 10
+    print(y.shape)
+    nn.Linear(n_in, n_out, bias=True)
+    print(type(y))
+    # Construct our model
+    model = nn.Sequential(nn.Linear(n_in, n_h),
+    nn.ReLU(),
+    nn.Linear(n_h, n_out),
+    nn.Sigmoid())
 
+
+    # Construct the loss function
     criterion = torch.nn.MSELoss()
     # Construct the optimizer (Stochastic Gradient Descent in this case)
-    optimizer = torch.optim.SGD(
-        model.parameters(), lr=0.01)  # lr=learning rate
-
-    loss_values = []
-    # Gradient Descent
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01) # lr=learning rate
     # Gradient Descent
     for epoch in range(500):
         # Forward pass: Compute predicted y by passing x to the model
         y_pred = model(x)
         # Compute and print loss
         loss = criterion(y_pred, y)
-        loss_values.append(loss.item())
-
-        print('epoch: ', epoch, ' loss: ', loss.item())
+        print('epoch: ', epoch,' loss: ', loss.item())
         # Zero gradients, perform a backward pass, and update the weights to zero
         # because PyTorch accumulates the gradients on subsequent backward passes.
         optimizer.zero_grad()
@@ -258,32 +310,37 @@ def get_NN1(top_spam, model, x, y):
         loss.backward()
         # Update the parameters
         optimizer.step()
+    out.backward()
 
 
-def get_NN2(model, top_spam, top_ham, x, y):
 
+
+# n_in, n_h, n_out, batch_size = 101, 51 , 2, 10
+def NN2(n_in, n_h, n_out, batch_size):
+    x = torch.randn(batch_size, n_in) # 10 word sentence
+    # Example sentence has these words that match in our list
+    y = torch.tensor([[1.0], [0.0], [0.0], [1.0], [1.0], [1.0], [0.0], [0.0], [1.0], [1.0]]) # target tensor of size 10
+
+    nn.Linear(n_in, n_out, bias=True)
+
+    # Construct our model
+    model = nn.Sequential(nn.Linear(n_in, n_h),
+    nn.ReLU(),
+    nn.Linear(n_h, n_out),
+    nn.Sigmoid())
+
+
+    # Construct the loss function
     criterion = torch.nn.MSELoss()
     # Construct the optimizer (Stochastic Gradient Descent in this case)
-    optimizer = torch.optim.SGD(
-        model.parameters(), lr=0.01)  # lr=learning rate
-    # Gradient Descent
-
-    criterion = torch.nn.MSELoss()
-    # Construct the optimizer (Stochastic Gradient Descent in this case)
-    optimizer = torch.optim.SGD(
-        model.parameters(), lr=0.01)  # lr=learning rate
-
-    loss_values = []
-    # Gradient Descent
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01) # lr=learning rate
     # Gradient Descent
     for epoch in range(500):
         # Forward pass: Compute predicted y by passing x to the model
         y_pred = model(x)
         # Compute and print loss
         loss = criterion(y_pred, y)
-        loss_values.append(loss.item())
-
-        print('epoch: ', epoch, ' loss: ', loss.item())
+        print('epoch: ', epoch,' loss: ', loss.item())
         # Zero gradients, perform a backward pass, and update the weights to zero
         # because PyTorch accumulates the gradients on subsequent backward passes.
         optimizer.zero_grad()
@@ -291,6 +348,8 @@ def get_NN2(model, top_spam, top_ham, x, y):
         loss.backward()
         # Update the parameters
         optimizer.step()
+    n_out.backward()
+
 
 
 main()

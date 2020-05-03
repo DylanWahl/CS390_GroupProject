@@ -47,8 +47,10 @@ def main():
     n_in, n_h, n_out, batch_size = 51, 25, 101, 10
     model = get_model(n_in, n_h, n_out)
     x, y = get_dummy_data(n_in, n_h, n_out, batch_size)
-    get_NN1(get_top(np.array(hamWords), model, trainSet1, testSet1), x, y)
-    get_NN2(get_top(np.array(hamWords).get_top(np.array(spamWords), x, y)))
+    n_top_ham = get_top(df)
+    n_top_spam = get_top(df)
+    get_NN1(get_top(
+    #get_NN2(get_top(np.array(hamWords).get_top(np.array(spamWords), x, y)))
 
 
 def get_results(testSet, hamWords, spamWords):
@@ -109,7 +111,10 @@ def clean_df(df):
 
 
 def np_separate(df):
-    return np.array(df.loc[:, df.columns != 'label'])
+    # transform our df
+    CountDict = Counter(" ".join(df[df['label']=='ham']["msg"]).split()).most_common(50)
+    df = pd.DataFrame.from_dict(count1)
+    npd_ham = np.array(df1[0])
 
 
 def clean_split_data(df):
@@ -141,13 +146,19 @@ def get_cleaned(text):
 # 3. Frequent Words Identification of top 50 most used words.
 
 
-def get_top(mail_dict):
-    the = Counter(mail_dict)
-    top = the.most_common(50)
-    lst = []
-    for i in top:
-        lst.append(i[0])
-    return np.array(lst)
+def get_top(df):
+    # top 50 ham list, spliting and then joining to test against other sentences.
+    hamCountDict = Counter(" ".join(df[df['label']=='ham']["msg"]).split()).most_common(50)
+    df_ham = pd.DataFrame.from_dict(hamCountDict)
+    # convert to numpy to then use as tensors later
+    npd_ham = np.array(df_ham[0])
+    # top 50 ham list, spliting and then joining to test against other sentences.
+    spamCountDict = Counter(" ".join(df[df['label']=='spam']["msg"]).split()).most_common(50)
+    df_spam = pd.DataFrame.from_dict(spamCountDict)
+    # convert to numpy to then use as tensors later
+    npd_spam = np.array(df_spam[0])
+    # Return our top 50 ham and spam as np array (as suggested)
+    return npd_ham, npd_spam
 
 # Word Count: dictionary conversion that provide
     # the count of every word in the data set
@@ -241,7 +252,6 @@ def torch_conversion(strg):
 def transform(text1, text2):
     lst = []
     vect = [i in text1 for i in text2]
-
     for i in vect:
         if i:
             lst.append(1)
