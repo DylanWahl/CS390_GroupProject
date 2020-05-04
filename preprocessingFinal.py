@@ -124,12 +124,11 @@ def get_top(mail_dict):
 
 def get_top_df(df):
     # top 50 ham
-    hamCountDict = Counter(" ".join(df[df['label']=='ham']["msg"]).split()).most_common(50)
+    hamCountDict = Counter(" ".join(df[df['label']== 0]["msg"]).split()).most_common(50)
     df_ham = pd.DataFrame.from_dict(hamCountDict)
     # top 50 spam
-    spamCountDict = Counter(" ".join(df[df['label']=='spam']["msg"]).split()).most_common(50)
+    spamCountDict = Counter(" ".join(df[df['label']== 1]["msg"]).split()).most_common(50)
     df_spam = pd.DataFrame.from_dict(spamCountDict)
-    # Return our top 50 ham and spam as np array (as suggested)
     return df_ham[0], df_spam[0]
 # Word Count: dictionary conversion that provide
     # the count of every word in the data set

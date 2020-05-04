@@ -59,16 +59,15 @@ def main():
 
     combined = combine(ham,spam)
 
-    NN1(n_in, n_h, n_out, batch_size)
-    NN2(n_in, n_h, n_out, batch_size)
+    NN1(n_in, n_h, n_out, batch_size,x,y)
+    NN2(n_in, n_h, n_out, batch_size,x,y)
 
 
 
 
 
-
-
-def bar_Top_ham(ham):
+# figures
+def bar_Top_ham(df_ham):
     ham.plot.bar(legend = False)
     y_pos = np.arange(len(ham[0]))
     plt.xticks(y_pos, ham[0])
@@ -77,13 +76,13 @@ def bar_Top_ham(ham):
     plt.ylabel('Count')
     plt.show()
 
-def bar_Top_spam(spam):
+def bar_Top_spam(df_spam):
     spam.plot.bar(legend = False)
     y_pos = np.arange(len(spam[0]))
     plt.xticks(y_pos, spam[0])
     plt.title('Top 50 words in spam')
-    plt.xlabel('Words')
-    plt.ylabel('Count')
+    plt.xlabel('Words Used')
+    plt.ylabel('Word Count')
     plt.show()
 
 
@@ -108,6 +107,9 @@ def combine(ham,spam):
 def convert_file(data_frame):
     return data_frame.to_numpy()
 
+def convert_split(split_df):
+    return data_frame[0].to_numpy()
+
 
 #n_in, n_h, n_out, batch_size = 51, 25 , 101, 10
 def get_dummy_data(n_in, n_h, n_out, batch_size):
@@ -123,16 +125,16 @@ def get_dummy_data(n_in, n_h, n_out, batch_size):
 
 def get_top(df):
     # top 50 ham
-    hamCountDict = Counter(" ".join(df[df['label']=='ham']["msg"]).split()).most_common(50)
+    hamCountDict = Counter(" ".join(df[df['label']==0]["msg"]).split()).most_common(50)
     df_ham = pd.DataFrame.from_dict(hamCountDict)
     npd_ham = np.array(df_ham[0])
     # top 50 spam
-    spamCountDict = Counter(" ".join(df[df['label']=='spam']["msg"]).split()).most_common(50)
+    spamCountDict = Counter(" ".join(df[df['label']==1]["msg"]).split()).most_common(50)
     df_spam = pd.DataFrame.from_dict(spamCountDict)
     npd_spam = np.array(df_spam[0])
     # Return our top 50 ham and spam as np array (as suggested)
     return npd_ham, npd_spam
-ham,spam = get_top(df)
+
 
 def get_train_test(file, size_test):
     df = readfile(file)
@@ -145,51 +147,52 @@ def get_train_test(file, size_test):
 
 # layer definition
 #n_in, n_h, n_out, batch_size = 51, 25, 2, 10
-def NN1(n_in, n_h, n_out, batch_size,y):
-
-    # Create dummy input and target tensors (data)
-    x = torch.randn(batch_size, n_in) # 10 word sentence
+def NN1(n_in, n_h, n_out, batch_size,x,y):
     # Example sentence has these words that match in our list
-    #y = torch.tensor([[1.0], [0.0], [0.0], [1.0], [1.0], [1.0], [0.0], [0.0], [1.0], [1.0]]) # target tensor of size 10
-    print(y.shape)
     nn.Linear(n_in, n_out, bias=True)
-    print(type(y))
+    y = torch.FloatTensor(y).reshape(-1, 1) # reshape to use for accuracy
     # Construct our model
     model = nn.Sequential(nn.Linear(n_in, n_h),
     nn.ReLU(),
     nn.Linear(n_h, n_out),
     nn.Sigmoid())
 
-
     # Construct the loss function
     criterion = torch.nn.MSELoss()
     # Construct the optimizer (Stochastic Gradient Descent in this case)
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01) # lr=learning rate
     # Gradient Descent
+    tloss = []
+    taccuracy = []
+
     for epoch in range(500):
         # Forward pass: Compute predicted y by passing x to the model
         y_pred = model(x)
         # Compute and print loss
         loss = criterion(y_pred, y)
-        print('epoch: ', epoch,' loss: ', loss.item())
-        # Zero gradients, perform a backward pass, and update the weights to zero
-        # because PyTorch accumulates the gradients on subsequent backward passes.
-        optimizer.zero_grad()
-        # perform a backward pass (backpropagation)
         loss.backward()
         # Update the parameters
         optimizer.step()
-    out.backward()
+        # because PyTorch accumulates the gradients on subsequent backward passes.
+        optimizer.zero_grad()
+        tloss.append(loss.item())
+        # @ DataHubbs Deep Learning 101 provides accuracy function
+        prediction = np.where(y_pred.detach().numpy()<0.5, 0, 1)
+        accuracy = np.sum(y.reshape(-1,1)==prediction) / len(y)
+        taccuracy.append(accuracy)
+
+    plt.plot(tloss)
+    plt.ylabel('Loss')
+    plt.title('Training Loss')
+    print("Accuracy: ", accuracy)
 
 
 
 
 # n_in, n_h, n_out, batch_size = 101, 51 , 2, 10
-def NN2(n_in, n_h, n_out, batch_size):
-    x = torch.randn(batch_size, n_in) # 10 word sentence
+def NN2(n_in, n_h, n_out, batch_size,x,y):
+    # Create dummy input and target tensors (data)
     # Example sentence has these words that match in our list
-    y = torch.tensor([[1.0], [0.0], [0.0], [1.0], [1.0], [1.0], [0.0], [0.0], [1.0], [1.0]]) # target tensor of size 10
-
     nn.Linear(n_in, n_out, bias=True)
 
     # Construct our model
@@ -198,26 +201,32 @@ def NN2(n_in, n_h, n_out, batch_size):
     nn.Linear(n_h, n_out),
     nn.Sigmoid())
 
-
     # Construct the loss function
     criterion = torch.nn.MSELoss()
     # Construct the optimizer (Stochastic Gradient Descent in this case)
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01) # lr=learning rate
     # Gradient Descent
+    tloss = []
+    taccuracy = []
     for epoch in range(500):
         # Forward pass: Compute predicted y by passing x to the model
         y_pred = model(x)
         # Compute and print loss
         loss = criterion(y_pred, y)
-        print('epoch: ', epoch,' loss: ', loss.item())
-        # Zero gradients, perform a backward pass, and update the weights to zero
-        # because PyTorch accumulates the gradients on subsequent backward passes.
-        optimizer.zero_grad()
-        # perform a backward pass (backpropagation)
         loss.backward()
         # Update the parameters
         optimizer.step()
-    n_out.backward()
+        # because PyTorch accumulates the gradients on subsequent backward passes.
+        optimizer.zero_grad()
+        tloss.append(loss.item())
+        # @ DataHubbs Deep Learning 101 provides accuracy functio
+        prediction = np.where(y_pred.detach().numpy()<0.5, 0, 1)
+        accuracy = np.sum(y.reshape(-1,1)==prediction) / len(y)
+        taccuracy.append(accuracy)
+    plt.plot(tloss)
+    plt.ylabel('Loss')
+    plt.title('Training Loss')
+    print(accuracy)
 
 
 
